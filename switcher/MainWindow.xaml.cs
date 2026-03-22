@@ -60,6 +60,10 @@ namespace switcher
             UpdateSelection();
 
             await Dispatcher.Yield(DispatcherPriority.Render);
+            
+            // center the window because wpf can't do it correctly
+            Left = (SystemParameters.PrimaryScreenWidth - ActualWidth) / 2;
+            Top = (SystemParameters.PrimaryScreenHeight - ActualHeight) / 2;
             Opacity = 1;
         }
 
