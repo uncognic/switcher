@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace switcher
 {
@@ -18,6 +19,7 @@ namespace switcher
         {
             InitializeComponent();
         }
+
         private ImageSource? GetIcon(IntPtr iconHandle)
         {
             if (iconHandle == IntPtr.Zero) return null;
@@ -31,10 +33,13 @@ namespace switcher
             catch { return null; }
         }
 
-        public void ShowSwitcher()
+        public async void ShowSwitcher()
         {
+            Opacity = 0;
+            Visibility = Visibility.Visible;
+
             var raw = WindowEnumerator.GetOpenWindows();
-            _items = raw.Select(w => new WindowItem
+            var items = raw.Select(w => new WindowItem
             {
                 Title = w.Title,
                 ProcessName = w.ProcessName,
@@ -42,20 +47,34 @@ namespace switcher
                 Icon = GetIcon(w.IconHandle),
             }).ToList();
 
+            if (items.Count == 0)
+            {
+                ClearSwitcherState();
+                Visibility = Visibility.Hidden;
+                return;
+            }
+
+            _items = items;
             _selectedIndex = 1 % _items.Count;
             WindowList.ItemsSource = _items;
             UpdateSelection();
-            Visibility = Visibility.Visible;
+
+            await Dispatcher.Yield(DispatcherPriority.Render);
+            Opacity = 1;
         }
 
         public async void HideSwitcher()
         {
-            Visibility = Visibility.Hidden;
+            var handle = IntPtr.Zero;
+            if (_selectedIndex >= 0 && _selectedIndex < _items.Count)
+                handle = _items[_selectedIndex].Handle;
 
-            if (_selectedIndex < 0 || _selectedIndex >= _items.Count)
+            Visibility = Visibility.Hidden;
+            ClearSwitcherState();
+
+            if (handle == IntPtr.Zero)
                 return;
 
-            var handle = _items[_selectedIndex].Handle;
             await Task.Delay(50);
             FocusWindow(handle);
         }
@@ -63,6 +82,7 @@ namespace switcher
         public void CancelSwitcher()
         {
             Visibility = Visibility.Hidden;
+            ClearSwitcherState();
         }
 
         // switching functions
@@ -84,6 +104,14 @@ namespace switcher
         {
             for (int i = 0; i < _items.Count; i++)
                 _items[i].IsSelected = i == _selectedIndex;
+        }
+
+        private void ClearSwitcherState()
+        {
+            WindowList.ItemsSource = null;
+            _items.Clear();
+            _selectedIndex = 0;
+            Opacity = 1;
         }
 
         private void FocusWindow(IntPtr handle)
