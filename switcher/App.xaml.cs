@@ -21,7 +21,12 @@ namespace switcher
                     _window.ShowSwitcher();
             };
 
-            _hook.OnShiftTabPressed += () => _window.CyclePrev();
+            _hook.OnShiftTabPressed += () => {
+                if (_window.Visibility == Visibility.Visible)
+                    _window.CyclePrev();
+                else
+                    _window.ShowSwitcher();
+            };
             _hook.OnAltReleased += () => _window.HideSwitcher();
             _hook.OnEscapePressed += () => _window.CancelSwitcher();
             _hook.Install();
