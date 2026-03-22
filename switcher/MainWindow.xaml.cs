@@ -48,11 +48,16 @@ namespace switcher
             Visibility = Visibility.Visible;
         }
 
-        public void HideSwitcher()
+        public async void HideSwitcher()
         {
             Visibility = Visibility.Hidden;
-            if (_selectedIndex >= 0 && _selectedIndex < _items.Count)
-                FocusWindow(_items[_selectedIndex].Handle);
+
+            if (_selectedIndex < 0 || _selectedIndex >= _items.Count)
+                return;
+
+            var handle = _items[_selectedIndex].Handle;
+            await Task.Delay(50);
+            FocusWindow(handle);
         }
 
         // switching functions
@@ -73,55 +78,47 @@ namespace switcher
 
         private void UpdateSelection()
         {
-            WindowList.UpdateLayout();
-
             for (int i = 0; i < _items.Count; i++)
-            {
-                var container = (ContentPresenter?)WindowList.ItemContainerGenerator.ContainerFromIndex(i);
-                if (container == null) continue;
-
-                var border = FindChild<Border>(container);
-                if (border == null) continue;
-
-                border.BorderBrush = i == _selectedIndex ? Brushes.DodgerBlue : Brushes.Transparent;
-            }
+                _items[i].IsSelected = i == _selectedIndex;
         }
 
         private void FocusWindow(IntPtr handle)
         {
-            if (handle == IntPtr.Zero) return;
+            if (handle == IntPtr.Zero || !IsWindow(handle))
+                return;
 
-            var foreThread = GetWindowThreadProcessId(GetForegroundWindow(), IntPtr.Zero);
+            var foreground = GetForegroundWindow();
+            var foreThread = foreground == IntPtr.Zero ? 0 : GetWindowThreadProcessId(foreground, IntPtr.Zero);
+            var targetThread = GetWindowThreadProcessId(handle, IntPtr.Zero);
             var appThread = GetCurrentThreadId();
 
-            if (foreThread != appThread)
-                AttachThreadInput(foreThread, appThread, true);
+            var attachedFore = false;
+            var attachedTarget = false;
 
-            WINDOWPLACEMENT placement = new();
-            placement.length = Marshal.SizeOf(placement);
-            GetWindowPlacement(handle, ref placement);
-            if (placement.showCmd == SW_SHOWMINIMIZED)
-                ShowWindow(handle, SW_RESTORE);
-
-            SetForegroundWindow(handle);
-            BringWindowToTop(handle);
-
-            if (foreThread != appThread)
-                AttachThreadInput(foreThread, appThread, false);
-        }
-
-        // sorcery
-        private static T? FindChild<T>(DependencyObject parent) where T : DependencyObject
-        {
-            if (parent == null) return null;
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            try
             {
-                var child = VisualTreeHelper.GetChild(parent, i);
-                if (child is T match) return match;
-                var result = FindChild<T>(child);
-                if (result != null) return result;
+                if (foreThread != 0 && foreThread != appThread)
+                    attachedFore = AttachThreadInput(foreThread, appThread, true);
+
+                if (targetThread != 0 && targetThread != appThread && targetThread != foreThread)
+                    attachedTarget = AttachThreadInput(targetThread, appThread, true);
+
+                WINDOWPLACEMENT placement = new();
+                placement.length = Marshal.SizeOf(placement);
+                if (GetWindowPlacement(handle, ref placement) && placement.showCmd == SW_SHOWMINIMIZED)
+                    ShowWindow(handle, SW_RESTORE);
+
+                BringWindowToTop(handle);
+                SetForegroundWindow(handle);
             }
-            return null;
+            finally
+            {
+                if (attachedTarget)
+                    AttachThreadInput(targetThread, appThread, false);
+
+                if (attachedFore)
+                    AttachThreadInput(foreThread, appThread, false);
+            }
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -143,5 +140,6 @@ namespace switcher
         [DllImport("kernel32.dll")] private static extern uint GetCurrentThreadId();
         [DllImport("user32.dll")] private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
         [DllImport("user32.dll")] private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        [DllImport("user32.dll")] private static extern bool IsWindow(IntPtr hWnd);
     }
 }

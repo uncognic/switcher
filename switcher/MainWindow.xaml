@@ -18,10 +18,26 @@
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
             <DataTemplate>
-                <Border Width="80" Margin="2" Padding="6" Background="#2a2a2a">
+                <Border Width="80" Margin="4" Padding="8"
+                BorderThickness="2"
+                Background="Transparent">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                    <Setter Property="BorderBrush" Value="DodgerBlue"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
                     <StackPanel HorizontalAlignment="Center">
-                        <Image Width="32" Height="32" HorizontalAlignment="Center" Source="{Binding Icon}"/>
-                        <TextBlock Text="{Binding Title}" Foreground="White" FontSize="11" TextTrimming="CharacterEllipsis" TextAlignment="Center" MaxWidth="72" Margin="0,6,0,0"></TextBlock>
+                        <Image Width="32" Height="32" Source="{Binding Icon}"
+                       HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding Title}" Foreground="#e0e0e0"
+                           FontSize="11" FontFamily="Segoe UI"
+                           TextTrimming="CharacterEllipsis"
+                           TextAlignment="Center" MaxWidth="72" Margin="0,6,0,0"/>
                     </StackPanel>
                 </Border>
             </DataTemplate>
