@@ -10,7 +10,7 @@
         Visibility="Hidden"
         SizeToContent="WidthAndHeight"
         WindowStartupLocation="CenterScreen">
-    <ItemsControl x:Name="WindowList" Margin="16">
+    <ItemsControl x:Name="WindowList" Margin="4">
         <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
                 <StackPanel Orientation="Horizontal" />
@@ -18,7 +18,7 @@
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
             <DataTemplate>
-                <Border Width="80" Margin="4" Padding="8"
+                <Border Width="100" Margin="4" Padding="8"
                 BorderThickness="2"
                 Background="Transparent">
                     <Border.Style>
@@ -32,7 +32,7 @@
                         </Style>
                     </Border.Style>
                     <StackPanel HorizontalAlignment="Center">
-                        <Image Width="32" Height="32" Source="{Binding Icon}"
+                        <Image Width="36" Height="36" Source="{Binding Icon}"
                        HorizontalAlignment="Center"/>
                         <TextBlock Text="{Binding Title}" Foreground="#e0e0e0"
                            FontSize="11" FontFamily="Segoe UI"
