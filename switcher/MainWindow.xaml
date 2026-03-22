@@ -4,11 +4,27 @@
         Title="Switcher"
         WindowStyle="None"
         AllowsTransparency="True"
-        Background="Transparent"
+        Background="#CC1a1a1a"
         Topmost="True"
         ShowInTaskbar="False"
         Visibility="Hidden"
-        Width="800" Height="120">
-    <Grid>
-    </Grid>
+        SizeToContent="WidthAndHeight"
+        WindowStartupLocation="CenterScreen">
+    <ItemsControl x:Name="WindowList" Margin="16">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <Border Width="80" Margin="2" Padding="6" Background="#2a2a2a">
+                    <StackPanel HorizontalAlignment="Center">
+                        <Image Width="32" Height="32" HorizontalAlignment="Center" Source="{Binding Icon}"/>
+                        <TextBlock Text="{Binding Title}" Foreground="White" FontSize="11" TextTrimming="CharacterEllipsis" TextAlignment="Center" MaxWidth="72" Margin="0,6,0,0"></TextBlock>
+                    </StackPanel>
+                </Border>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
 </Window>

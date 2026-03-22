@@ -12,7 +12,14 @@ namespace switcher
             _window = new MainWindow();
 
             _hook = new Keyboard();
-            _hook.OnAltTabPressed += () => _window.ShowSwitcher();
+            _hook.OnAltTabPressed += () => {
+                if (_window.Visibility == System.Windows.Visibility.Visible)
+                    _window.CycleNext();
+                else
+                    _window.ShowSwitcher();
+            };
+            _hook.OnAltReleased += () => _window.HideSwitcher();
+            _hook.OnShiftTabPressed += () => _window.CyclePrev();
             _hook.OnAltReleased += () => _window.HideSwitcher();
             _hook.Install();
         }

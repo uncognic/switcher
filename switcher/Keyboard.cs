@@ -11,12 +11,16 @@ namespace switcher
         private const int WM_KEYUP = 0x0101;
         private const int WM_SYSKEYDOWN = 0x0104;
         private const int WM_SYSKEYUP = 0x0105;
+        private const int VK_SHIFT = 0x10;
+        public const int SW_RESTORE = 9;
 
         private IntPtr _hookHandle = IntPtr.Zero;
         private readonly LowLevelKeyboardProc _proc;
 
         public event Action? OnAltTabPressed;
         public event Action? OnAltReleased;
+        public event Action? OnTabPressed;
+        public event Action? OnShiftTabPressed;
 
         private bool _altDown = false;
         private bool _switcherActive = false;
@@ -57,7 +61,11 @@ namespace switcher
                     if (key == Key.Tab && _altDown)
                     {
                         _switcherActive = true;
-                        OnAltTabPressed?.Invoke();
+                        var shift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
+                        if (shift)
+                            OnShiftTabPressed?.Invoke();
+                        else
+                            OnAltTabPressed?.Invoke();
                         return 1;
                     }
                 }
@@ -86,5 +94,6 @@ namespace switcher
         [DllImport("user32.dll")] private static extern bool UnhookWindowsHookEx(IntPtr hhk);
         [DllImport("user32.dll")] private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
         [DllImport("kernel32.dll")] private static extern IntPtr GetModuleHandle(string lpModuleName);
+        [DllImport("user32.dll")] private static extern short GetKeyState(int nVirtKey);
     }
 }
