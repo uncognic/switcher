@@ -11,6 +11,8 @@ namespace switcher
     {
         private List<WindowItem> _items = new();
         private int _selectedIndex = 0;
+        private const int SW_RESTORE = 9;
+        private const int SW_SHOWMINIMIZED = 2;
 
         public MainWindow()
         {
@@ -95,7 +97,12 @@ namespace switcher
             if (foreThread != appThread)
                 AttachThreadInput(foreThread, appThread, true);
 
-            ShowWindow(handle, Keyboard.SW_RESTORE);
+            WINDOWPLACEMENT placement = new();
+            placement.length = Marshal.SizeOf(placement);
+            GetWindowPlacement(handle, ref placement);
+            if (placement.showCmd == SW_SHOWMINIMIZED)
+                ShowWindow(handle, SW_RESTORE);
+
             SetForegroundWindow(handle);
             BringWindowToTop(handle);
 
@@ -116,10 +123,23 @@ namespace switcher
             }
             return null;
         }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct WINDOWPLACEMENT
+        {
+            public int length;
+            public int flags;
+            public int showCmd;
+            public System.Drawing.Point ptMinPosition;
+            public System.Drawing.Point ptMaxPosition;
+            public System.Drawing.Rectangle rcNormalPosition;
+        }
+
         [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hWnd);
         [DllImport("user32.dll")] private static extern bool BringWindowToTop(IntPtr hWnd);
         [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
         [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr lpdwProcessId);
+        [DllImport("user32.dll")] private static extern bool GetWindowPlacement(IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);
         [DllImport("kernel32.dll")] private static extern uint GetCurrentThreadId();
         [DllImport("user32.dll")] private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
         [DllImport("user32.dll")] private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);

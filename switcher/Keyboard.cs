@@ -12,7 +12,6 @@ namespace switcher
         private const int WM_SYSKEYDOWN = 0x0104;
         private const int WM_SYSKEYUP = 0x0105;
         private const int VK_SHIFT = 0x10;
-        public const int SW_RESTORE = 9;
 
         private IntPtr _hookHandle = IntPtr.Zero;
         private readonly LowLevelKeyboardProc _proc;
