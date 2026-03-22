@@ -23,6 +23,7 @@ namespace switcher
 
             _hook.OnShiftTabPressed += () => _window.CyclePrev();
             _hook.OnAltReleased += () => _window.HideSwitcher();
+            _hook.OnEscapePressed += () => _window.CancelSwitcher();
             _hook.Install();
 
             _trayIcon = new NotifyIcon

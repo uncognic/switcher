@@ -20,6 +20,7 @@ namespace switcher
         public event Action? OnAltReleased;
         public event Action? OnTabPressed;
         public event Action? OnShiftTabPressed;
+        public event Action? OnEscapePressed;
 
         private bool _altDown = false;
         private bool _switcherActive = false;
@@ -65,6 +66,13 @@ namespace switcher
                             OnShiftTabPressed?.Invoke();
                         else
                             OnAltTabPressed?.Invoke();
+                        return 1;
+                    }
+
+                    if (key == Key.Escape && _switcherActive)
+                    {
+                        _switcherActive = false;
+                        OnEscapePressed?.Invoke();
                         return 1;
                     }
                 }

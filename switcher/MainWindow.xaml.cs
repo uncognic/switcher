@@ -60,8 +60,12 @@ namespace switcher
             FocusWindow(handle);
         }
 
-        // switching functions
+        public void CancelSwitcher()
+        {
+            Visibility = Visibility.Hidden;
+        }
 
+        // switching functions
         public void CycleNext()
         {
             if (_items.Count == 0) return;
