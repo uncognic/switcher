@@ -11,6 +11,10 @@ namespace switcher
 
         public void ShowSwitcher()
         {
+            var windows = WindowEnumerator.GetOpenWindows();
+            foreach (var w in windows)
+                Console.WriteLine($"{w.ProcessName}: {w.Title}");
+
             Visibility = Visibility.Visible;
         }
 
