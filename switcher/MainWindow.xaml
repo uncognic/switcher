@@ -10,10 +10,10 @@
         Visibility="Hidden"
         SizeToContent="WidthAndHeight"
         WindowStartupLocation="CenterScreen">
-    <ItemsControl x:Name="WindowList" Margin="4">
+    <ItemsControl x:Name="WindowList" Margin="4" MaxWidth="660">
         <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
-                <StackPanel Orientation="Horizontal" />
+                <WrapPanel Orientation="Horizontal"/>
             </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
